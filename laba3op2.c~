@@ -4,18 +4,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <signal.h>
-pid_t pid; /* Гл. PID */
-void EXT(int sig) /* Перехват сигнала */
+pid_t pid;
+void EXT(int sig)
 {
-	kill(pid, 1); /* Убийство сигнала */
+	kill(pid, 1);
 }
 int main(void)
 {
-	char  *dir  =  (char  *)malloc((1024)  * sizeof(char)); 
+	char  *dir  =  (char  *)malloc((1024)  * sizeof(char));
 	char  *cmdline;
 	char  *cmdarg1;
 	char  *cmdarg2;
-	char  *command  =  (char  *)malloc((255)  * sizeof(char)); 
+	char  *command  =  (char  *)malloc((255)  * sizeof(char));
 	int sizecl = 0;
 	int sizearg1 = 0;
 	int sizearg2 = 0;
@@ -32,31 +32,37 @@ int main(void)
 		sizearg2 = 0;
 		sizetmp = 0;
 		fgets(command, 255, stdin);
+		if (command[sizeof(command)-2]  ==  '&')
+						printf("Olol");
+		printf("\n(%c)\n", command[sizeof(command)-2]);
 		while (command[sizetmp] != ' ' && (int)command[sizetmp] != 10) {
-			sizecl++; /* Отсчитывает кол-во символов в команду */
-			sizetmp++; /* Ведет подсчет общего количества символов */
+			sizecl++;
+			sizetmp++;
 		}
 		if ((int)command[sizetmp+1] != 0 && (int)command[sizetmp+1] != 10) {
 				while (command[sizetmp+1] != ' ' && (int)command[sizetmp+1] != 10) {
-					sizearg1++; /* Отсчитывает кол-во символов в аргумент1 */
+					sizearg1++;
 					sizetmp++;
 				}
 			sizetmp += 1;
 			if ((int)command[sizetmp+1] != 0) {
 				while (command[sizetmp+1] != ' ' && (int)command[sizetmp+1] != 10) {
-					sizearg2++; /* Отсчитывает кол-во символов в фргумент2 */
+					sizearg2++;
 					sizetmp++;
 				}
 			}
 		}
 		temp = 0;
 		if (command[sizetmp-1]  ==  '&') {
-			command[sizetmp-1]  ==  '\0'; /* Проверяем последний символ на & */
-			temp = 1; /* Если символ & есть в наличии, то ставим флаг = 1 */
+			printf("|||command %c\n", command[sizetmp-1]);
+			command[sizetmp-1]  ==  '\0';
+			temp = 1;
 		}
-		cmdline  =  (char  *)malloc((sizecl)  * sizeof(char)); /* Выделяем память для командной строки */
-		for (i = 0; i <= sizecl-1; i++) /* sizecl = Size command line */
-						cmdline[i] = command[i]; /* Считывает символы из входной строки в командную секцию */
+		printf("command %c\n", command[sizetmp]);
+		printf("Temp = %d\n", temp);
+		cmdline  =  (char  *)malloc((sizecl)  * sizeof(char));
+		for (i = 0; i <= sizecl-1; i++)
+						cmdline[i] = command[i];
 		int n = 0;
 		if (sizearg1  != 0) {
 			cmdarg1  =  (char  *)malloc((sizearg1)  * sizeof(char));
@@ -75,25 +81,26 @@ int main(void)
 			}
 		puts(cmdarg2);
 		}
-		int arg  =  1; /* Количество аргументов 1 отсутствуют, 2 один арг, 3 два аргумента */
+		int arg  =  1;
 		if (sizearg1 != 0)
-			arg = 2;
+						arg = 2;
 		if (sizearg2 != 0)
-			arg = 3;
+					arg = 3;
 		if (cmdline[0]  ==  'c' && cmdline[1]  ==  'd' && (int)cmdline[2]  ==  0) {
+						printf("--CD--\n");
 						chdir(cmdarg1);
 						getcwd(dir, 1024);
 						puts(dir);
 		};
-		pid  =  fork(); /* Создаем дочерний!? процесс */
-		chdir(dir); /* задаем дерикторию */
+		pid  =  fork();
+		chdir(dir);
 		switch (pid) {
 		case -1:
 				perror("fork filed");
 				exit(1);
 				break;
 		case 0:
-			/* если дочерний!? процесс */
+			/* 0 */
 			if (arg   ==   1)
 				execlp(cmdline, cmdline, (char *)NULL);
 			else if (arg   ==   3)
@@ -105,8 +112,6 @@ int main(void)
 			if (temp   ==   0)
 				wait(0);
 			break;
-
-		/* Все тоже! До сюда не доходит =( */
 		printf("-----\n");
 		puts(dir);
 		printf("-----\n");
